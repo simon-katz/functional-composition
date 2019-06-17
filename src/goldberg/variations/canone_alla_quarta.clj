@@ -20,14 +20,26 @@
 
 (definst tone [frequency 440] (sin-osc frequency))
 
+(definst doubletone [freq1 300 freq2 300]
+  (+ (sin-osc freq1)
+     (sin-osc freq2)))
+
 (definst beep [frequency 440 duration 1]
   (let [envelope (line 1 0 duration :action FREE)]
     (* envelope (sin-osc frequency))))
 
 (comment
+
   (tone 300)
-  (beep 300)
   (stop)
+
+  (doubletone 300 300)
+  (stop)
+
+  (doubletone 300 301)
+  (stop)
+
+  (beep 300)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -38,6 +50,19 @@
                h0 1 h1 0.6 h2 0.4 h3 0.25 h4 0.2 h5 0.15]
   (let [harmonic-series [ 1  2  3  4  5  6]
         ;;              [ 1  2  3  4.2 5.4 6.8]
+        proportions     [h0 h1 h2 h3 h4 h5]
+        component       (fn [harmonic proportion]
+                          (* 1/2
+                             proportion
+                             (env-gen (perc 0.01 (* proportion duration)))
+                             (sin-osc (* harmonic frequency))))
+        whole           (mix (map component harmonic-series proportions))]
+    (detect-silence whole :action FREE)
+    whole))
+
+(definst bell-2 [frequency 440 duration 10
+                 h0 1 h1 0.6 h2 0.4 h3 0.25 h4 0.2 h5 0.15]
+  (let [harmonic-series [ 1  2  3  4.2 5.4 6.8]
         proportions     [h0 h1 h2 h3 h4 h5]
         component       (fn [harmonic proportion]
                           (* 1/2
@@ -61,6 +86,16 @@
   (bell 600 10.0)
   (bell 500 10.0 0.0)
   (bell 400 10.0 0.0 0.0)
+
+  ;; We perceive missing frequencies from their harmonics.
+  (bell 600 10.0 0.0 0.0 0.0)
+  (bell 600 10.0 0.0 0.0)
+  (bell 600 10.0 0.0)
+  (bell 600 10.0)
+
+  (bell-2 600 10.0)
+  (bell-2 500 10.0 0.0)
+  (bell-2 400 10.0 0.0 0.0)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -79,7 +114,9 @@
 (defn ding [midi] (bell (midi->hz midi) 3))
 
 (comment
+  (ding 40)
   (ding 69)
+  (ding 70)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
