@@ -9,7 +9,7 @@
                        (where :pitch (comp lower lower))
                        (where :pitch (from %)))
         hook (mapthen #(phrase (concat (repeat 11 1/2) [5/2])
-                               ;(-> % vals sort cycle)
+                               ;; (-> % vals sort cycle)
                                (repeat %)
                                )
                       [(-> triad (root 7) (inversion 1))
@@ -23,12 +23,12 @@
                   (all :part :beat))]
 
     (->>
-      (mapthen bassline [0 0 3 0 4 0])
-      (with hook)
-      (with beat)
-      (tempo (comp (scale [2/3 1/3]) (partial * 2)))
-      (where :pitch (comp low B flat major))
-      (tempo (bpm 120)))))
+     (mapthen bassline [0 0 3 0 4 0])
+     (with hook)
+     (with beat)
+     (tempo (comp (scale [2/3 1/3]) (partial * 2)))
+     (where :pitch (comp low B flat major))
+     (tempo (bpm 120)))))
 
 (comment
   (jam (var in-the-mood))
